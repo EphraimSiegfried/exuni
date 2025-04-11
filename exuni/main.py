@@ -1,7 +1,7 @@
 import gspread
 from google.oauth2.service_account import Credentials
-import database
-import queries
+import database as db
+import queries as queries
 import argparse
 from pathlib import Path
 
@@ -21,7 +21,7 @@ def cli():
 
     # Query the database
     query_parser = subparsers.add_parser("query", help="Query the database")
-    query_parser.add_argument('query_type', choices=['less_than', 'later_than', 'without_feedback'],
+    query_parser.add_argument('query_type', choices=['less_than', 'later_than', 'without_feedback' ,'points_summary'],
                               help='Query type to execute.')
     query_parser.add_argument('query_params', type=str, nargs='+', help='Parameters for the query (e.g., for less_than: score value; for later_than: date).')
 
@@ -36,16 +36,16 @@ def get_sheet(sheet_key:str, credentials_file:str):
 
 def main():
     args = cli()
-    dirname = os.path.dirname(__file__)
-    schema_file = os.path.join(dirname, "schema.sql")
-    conn = database.init_db(args.database_path, schema_file)
+    dirname = Path(__file__)
+    schema_file = dirname / "schema.json"
+    conn = db.init_db(args.database_path, schema_file)
     if args.command == "update":
         sheet = get_sheet(args.sheet_key, args.credentials)
         if args.type == "group":
-            database.insert_group_data(sheet, conn)
+            db.insert_group_data(sheet, conn)
         elif args.type == "contribution":
             sheet_num = int(sheet.title[-1])  # TODO: FIND A BETTER SOLUTION
-            database.insert_contribution_data(sheet, conn, sheet_num)
+            db.insert_contribution_data(sheet, conn, sheet_num)
     elif args.command == "query":
         if args.query_type == "less_than" and args.query_params:
             score = float(args.query_params[0])
@@ -58,6 +58,18 @@ def main():
         elif args.query_type == "without_feedback" and args.query_params:
             exercise_num = int(args.query_params[0])
             result = queries.get_students_without_feedback_submission(exercise_num, conn)
+        elif args.query_type == "points_summary":
+            if not args.query_params[0]:
+                print("Exercise number is required")
+                exit(1)
+            if not args.query_params[1]:
+                print("Group number is required")
+                exit(1)
+            exercise_num = int(args.query_params[0])
+            group_id = int(args.query_params[1])
+            queries.print_group_summary(conn, exercise_num, group_id)
+            return
+
         for row in result:
             row = map(str, row)
             print(", ".join(row))
