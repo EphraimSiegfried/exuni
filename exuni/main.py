@@ -1,7 +1,7 @@
 import gspread
 from google.oauth2.service_account import Credentials
-import exuni.database as db
-import exuni.queries as queries
+import database
+import queries
 import argparse
 from pathlib import Path
 
@@ -36,14 +36,16 @@ def get_sheet(sheet_key:str, credentials_file:str):
 
 def main():
     args = cli()
-    conn = db.init_db(args.database_path, "schema.sql")
+    dirname = os.path.dirname(__file__)
+    schema_file = os.path.join(dirname, "schema.sql")
+    conn = database.init_db(args.database_path, schema_file)
     if args.command == "update":
         sheet = get_sheet(args.sheet_key, args.credentials)
         if args.type == "group":
-            db.insert_group_data(sheet, conn)
+            database.insert_group_data(sheet, conn)
         elif args.type == "contribution":
-            sheet_num = int(sheet.title[-1]) #TODO: FIND A BETTER SOLUTION
-            db.insert_contribution_data(sheet, conn, sheet_num)
+            sheet_num = int(sheet.title[-1])  # TODO: FIND A BETTER SOLUTION
+            database.insert_contribution_data(sheet, conn, sheet_num)
     elif args.command == "query":
         if args.query_type == "less_than" and args.query_params:
             score = float(args.query_params[0])
