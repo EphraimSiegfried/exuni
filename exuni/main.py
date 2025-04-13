@@ -1,7 +1,7 @@
 import gspread
 from google.oauth2.service_account import Credentials
-import database as db
-import queries as queries
+import exuni.database as db
+import exuni.queries as queries
 import argparse
 from pathlib import Path
 
@@ -37,7 +37,7 @@ def get_sheet(sheet_key:str, credentials_file:str):
 def main():
     args = cli()
     dirname = Path(__file__)
-    schema_file = dirname / "schema.json"
+    schema_file = dirname / "schema.sql"
     conn = db.init_db(args.database_path, schema_file)
     if args.command == "update":
         sheet = get_sheet(args.sheet_key, args.credentials)
