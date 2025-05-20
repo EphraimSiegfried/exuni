@@ -7,7 +7,8 @@ credentials_file = "credentials.json"
 group_sheet_id = "1BOa_t8w-Y4ELJWbK-ukfWoZ50vlLwTbPZh47hitHHYI"
 contribution_sheet_ids = [
     "1QxYPNK3VViJQ2Osxd-IzWLQx83gPMEbdmy4-DnIXRJ0",
-    "1UG5eq0ziOLwhQry5vMqfAcVLKMU9dEsGlP1KVtb5DBE"
+    "1UG5eq0ziOLwhQry5vMqfAcVLKMU9dEsGlP1KVtb5DBE",
+    "1qDrvFVR-8e1wa5iVVprs2WRgWR4ZSoXdLcm4OzNA40E"
 ]
 points_sheet = "1O6ToKqANTOs_5VOK5enNeJVCH_Tkt7NWlNM-p0_75NU"
 db_path = Path("dpi.db")
