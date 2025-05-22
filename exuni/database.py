@@ -49,7 +49,7 @@ def insert_contribution_data(worksheet: Worksheet, conn: Connection, exercise_id
             for feedback, peer_id in zip([c1, c2, c3, c4], ["A", "B", "C", "D"]):
                 if feedback == "Teammate does not exist":
                     continue
-                score = float(feedback[:4])
+                score = float(feedback.split(" ")[0])
 
                 # Check for existing entry
                 cursor.execute('''
