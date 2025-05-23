@@ -10,3 +10,10 @@ dependencies = [
     "google-auth-oauthlib>=1.2.1",
     "gspread>=6.2.0",
 ]
+
+[project.scripts]
+exuni = "exuni.main:main"
+
+[build-system]
+requires = ["setuptools", "wheel", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
