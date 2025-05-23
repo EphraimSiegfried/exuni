@@ -15,7 +15,21 @@ def init_db(db_name: str, schema_file: str):
             cursor.executescript(schema)
         conn.commit()
     return conn
+def insert_exercise_data(worksheet: any, conn: Connection): # Using 'any' as a placeholder for Worksheet type
+    cursor = conn.cursor()
+    rows = worksheet.get_all_values()
+    for row in rows[1:]:
+        sheet_num, release_date_str, due_date_str = row
+        release_date_dt = datetime.strptime(release_date_str, '%d.%m.%Y')
+        due_date_dt = datetime.strptime(due_date_str, '%d.%m.%Y')
+        release_date_iso = release_date_dt.strftime('%Y-%m-%d')
+        due_date_iso = due_date_dt.strftime('%Y-%m-%d 23:59:59') # FIX: hardcoded time
+        cursor.execute('''
+            INSERT OR IGNORE INTO Exercise (exercise_num, release_date, due_date)
+            VALUES (?, ?, ?)
+        ''', (int(sheet_num), release_date_iso, due_date_iso))
 
+    conn.commit() # Don't forget to commit the changes!
 def insert_group_data(worksheet: Worksheet, conn: Connection):
     cursor = conn.cursor()
     rows = worksheet.get_all_values()

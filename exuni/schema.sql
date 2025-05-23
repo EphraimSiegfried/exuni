@@ -12,7 +12,9 @@ CREATE TABLE Person (
 );
 
 CREATE TABLE Exercise (
-    exercise_num INTEGER PRIMARY KEY
+    exercise_num INTEGER PRIMARY KEY,
+    release_date DATE NOT NULL,
+    due_date DATE NOT NULL
 );
 
 CREATE TABLE Feedback (
@@ -113,8 +115,8 @@ WITH
 SELECT
     asi.group_id,
     asi.member_id,
-    p.name AS student_name,
-    p.mail AS student_mail,
+    p.name,
+    p.mail,
     asi.exercise_num,
     COALESCE(vges.net_group_points_for_exercise, 0) AS group_contribution_for_exercise,
     COALESCE(pm.points_deducted, 0) AS personal_malus_for_exercise,
@@ -130,8 +132,8 @@ CREATE VIEW StudentOverallPoints AS
 SELECT
     p.group_id,
     p.member_id,
-    p.name AS student_name,
-    p.mail AS student_mail,
+    p.name,
+    p.mail,
     COALESCE(SUM(vseb.student_net_points_for_exercise), 0) AS final_total_achieved_points
 FROM Person p
 LEFT JOIN StudentExerciseBreakdown vseb
@@ -141,3 +143,60 @@ GROUP BY
     p.member_id,
     p.name,
     p.mail;
+
+CREATE VIEW LateFeedbackSubmissions AS
+SELECT DISTINCT
+  f.exercise_num,
+  f.group_id,
+  f.reviewer_id AS member_id,
+  p.name,
+  p.mail,
+  f.created_at AS feedback_submission_time,
+  e.due_date
+FROM Feedback f
+JOIN Exercise e
+  ON f.exercise_num = e.exercise_num
+JOIN Person p
+  ON f.group_id = p.group_id AND f.reviewer_id = p.member_id
+WHERE DATE(f.created_at) > e.due_date;
+
+CREATE VIEW NonSubmittingStudents AS
+SELECT
+  p.group_id,
+  p.member_id,
+  p.name,
+  p.mail,
+  e.exercise_num,
+  e.due_date
+FROM Person p
+CROSS JOIN Exercise e
+LEFT JOIN Feedback f
+  ON p.group_id = f.group_id
+  AND p.member_id = f.reviewer_id
+  AND e.exercise_num = f.exercise_num
+WHERE f.reviewer_id IS NULL;
+
+CREATE VIEW StudentSubmissionStatus AS
+SELECT
+    lfs.exercise_num,
+    lfs.group_id,
+    lfs.member_id,
+    lfs.name,
+    lfs.mail,
+    lfs.feedback_submission_time,
+    lfs.due_date,
+    'Late Submission' AS submission_status
+FROM
+    LateFeedbackSubmissions lfs
+UNION
+SELECT
+    nss.exercise_num,
+    nss.group_id,
+    nss.member_id,
+    nss.name,
+    nss.mail,
+    NULL AS feedback_submission_time, -- No submission time for non-submitting students
+    nss.due_date,
+    'No Submission' AS submission_status
+FROM
+    NonSubmittingStudents nss;

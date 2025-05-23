@@ -6,7 +6,7 @@ from pathlib import Path
 
 credentials_file = "credentials.json"
 group_sheet_id = "1BOa_t8w-Y4ELJWbK-ukfWoZ50vlLwTbPZh47hitHHYI"
-# exercise_dates_sheet_id = "1yLQ4t-wfCc0JsKpwCH3Tivs8z1XtJgyav1uIA-a5bWc"
+exercise_dates_sheet_id = "1yLQ4t-wfCc0JsKpwCH3Tivs8z1XtJgyav1uIA-a5bWc"
 contribution_sheet_ids = [
     "1QxYPNK3VViJQ2Osxd-IzWLQx83gPMEbdmy4-DnIXRJ0",
     "1UG5eq0ziOLwhQry5vMqfAcVLKMU9dEsGlP1KVtb5DBE",
@@ -25,9 +25,9 @@ client = gspread.authorize(creds)
 print("Creating and initializing database")
 conn = init_db(str(db_path), "exuni/schema.sql")
 
-# print("Inserting exercise dates")
-# insert_exercise_data(client.open_by_key(exercise_dates_sheet_id).sheet1, conn)
-#
+print("Inserting exercise dates")
+insert_exercise_data(client.open_by_key(exercise_dates_sheet_id).sheet1, conn)
+
 print("Inserting group data")
 insert_group_data(client.open_by_key(group_sheet_id).sheet1, conn)
 
