@@ -1,3 +1,4 @@
+#!/usr/bin/env -S uv run --script
 import gspread
 from google.oauth2.service_account import Credentials
 from exuni.database import *
