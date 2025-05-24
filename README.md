@@ -19,7 +19,7 @@ This application combines data gathered from:
 ### Exercise Summary
 Get a summary for a given group number and exercise sheet number with:
 ```bash
-uv run exuni points_summary <sheet_num> <group_num>
+uv run exuni query points_summary <sheet_num> <group_num>
 ```
 which generates something similar to 
 ```aiignore
